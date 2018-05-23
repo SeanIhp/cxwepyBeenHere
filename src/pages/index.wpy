@@ -1,0 +1,171 @@
+<style type="scss">
+.tab_item {
+    height: 100%;
+}
+page, .body{
+    height: 100%;
+    font-family: '\5FAE\8F6F\96C5\9ED1', arial;
+    background-color: #f0eff5;
+}
+</style>
+
+<template>
+    <view class="body">  
+        <view class="tab_item tab_here" hidden="{{currentTab != 0}}">
+            <here />
+        </view>
+        <view class="tab_item tab_position" hidden="{{currentTab != 1}}">
+            <position />
+        </view>
+        <!--
+        <view class="tab_item tab_contact" hidden="{{currentTab != 1}}">
+        </view>
+        -->
+        <view class="tab_item tab_discovery" hidden="{{currentTab != 2}}">
+            <discovery />
+        </view>
+        <view class="tab_item tab_me" hidden="{{currentTab != 3}}">
+            <me />
+        </view>
+
+        <tab :active.sync="currentTab" />
+        <toast />
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy';
+
+    import Here from '../components/here';
+    import Position from '../components/position';
+
+    import Message from '../components/message';
+    import Discovery from '../components/discovery';
+    import Contact from '../components/contact';
+    import Me from '../components/me';
+    import Tab from '../components/tab';
+
+    import Toast from 'wepy-com-toast';
+    import SeanComm from '../utils/utils';
+    import Bullets from '../utils/bullets';
+    import Danmu from '../utils/danmu';
+    import api from '../common/api';
+
+    export default class Index extends wepy.page {
+        config = {
+            'navigationBarTitleText': 'BEENHERE',
+            'navigationBarTextStyle': 'white',
+            'navigationBarBackgroundColor': '#3b3a40'
+        };
+
+        components = {
+            here: Here,
+            position: Position,
+            message: Message,
+            discovery: Discovery,
+            me: Me,
+            contact: Contact,
+            tab: Tab,
+            toast: Toast
+        };
+
+        data = {
+            userInfo: null,
+            // pixelRatio: null,
+            // screenWidth: null,
+            // screenHeight: null,
+            // clientWidth: null,
+            // clientHeight: null,
+            // clientMiddle: null,
+            // fontSizeSetting: null,
+            // scence: {
+            //     runner: null,
+            //     baseDistance: -1, // 最大移距
+            //     timeslice: -1,
+            //     laneBaseHeight: -1,
+            //     topBase: 50,      // 顶部基线
+            //     bottomBase: -1,
+            //     isRunning: false,
+            //     cntLane: 0,           // 泳道数量      
+            //     cntComments: 0,       // 当前CMT数量
+            //     cntCommentsMax: 40,
+            // },
+            // comments: [],         // 原始CMT
+            // lane0: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane1: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane2: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane3: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane4: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane5: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane6: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane7: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane8: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane9: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane10: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane11: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane12: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane13: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane14: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane15: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane16: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane17: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane18: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane19: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // lane20: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null },
+            // running: [],
+            // dianMen: [],
+            //-----------------------------------------------------
+            currentTab: 0,
+            msgCount: 0,
+            // pushLocation: function() {
+            //     $invoke('here', 'loadData');
+            // }
+        };
+
+        methods = {
+        };
+
+        onLoad() {
+            let self = this;
+            // if(!this.$parent.globalData.userInfo){
+                this.$parent.globalData.userInfo = api.getWxUserInfo(this.$parent.globalData);
+            // }
+            // if(!this.$parent.globalData.location) {
+                // this.$parent.globalData.location = api.getWxLocation(this.$parent.globalData, this.pushLocation.bind(this));
+                // this.$parent.globalData.location = api.getWxLocation(this.$parent.globalData, null);
+            // }
+            // this.$invoke("./here", "loadData");
+            // this.$apply();
+        }
+
+        onShow() {
+            this.currentTab = 0;
+            // this.$invoke('message', 'loadMessage');
+            // this.$invoke('here', 'loadData');    
+            // console.log("this.$parent.globalData: ", this.$parent.globalData);
+        }
+
+        // getUserInfo(cb) {
+        //     const that = this
+        //     if (this.globalData.userInfo) {
+        //         return this.globalData.userInfo
+        //     }
+        //     wepy.getUserInfo({
+        //         success (res) {
+        //             that.globalData.userInfo = res.userInfo
+        //             cb && cb(res.userInfo)
+        //         }
+        //     })
+        // }
+
+        showToast(name) {
+            let promise = this.$invoke('toast', 'show', {
+                title: `${name}`,
+                img: 'https://raw.githubusercontent.com/kiinlam/wetoast/master/images/star.png'
+            });
+            promise.then((d) => {
+                // console.log('toast done');
+            });
+        }
+    }
+</script>

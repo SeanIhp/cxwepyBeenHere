@@ -1,0 +1,679 @@
+<style>
+    .userinfo-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+    }
+
+    .position {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        font-size: 16px;
+        /* color: #FFF; */
+        background: #FFF;
+        opacity: 0.6;
+        padding-top: 5px;
+        padding-left: 10px;
+    }
+    .positionIcon {
+        display: inline-block;
+        margin-bottom: -5px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .container {
+        filter:"progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='scale')";  
+        -moz-background-size:100% 100%;  
+        background-size:100% 100%;  
+        background-attachment: fixed;
+        
+    }
+
+    .inscription {
+        border: 0px solid #FFF;      /* #E8BD96 */
+        padding: 5px 20px; 
+        color: #000;
+        background: #FFF;      /* #E8BD96 */
+        border-radius:22px;
+        -moz-border-radius:22px; /* 老的 Firefox */ 
+        opacity: 0.7;
+    }
+
+    .blank {
+        padding: 5px 20px; 
+    }
+
+    @-webkit-keyframes advGo { 
+        0%{opacity: 0;} 10%{opacity: 1;} 90%{opacity: 1;} 100%{opacity: 0;} 
+    }
+    @keyframes advGo { 
+        0%{opacity: 0;} 10%{opacity: 1;} 90%{opacity: 1;} 100%{opacity: 0;} 
+    }
+    .advSwitch { -webkit-animation: advGo linear infinite ; animation: advGo linear infinite ; }
+
+    @-webkit-keyframes advGo0 { 
+        0%{opacity: 0;} 20%{opacity: 1;} 80%{opacity: 1;} 100%{opacity: 0;} 
+    }
+    @keyframes advGo0 { 
+        0%{opacity: 0;} 20%{opacity: 1;} 80%{opacity: 1;} 100%{opacity: 0;} 
+    }
+    .advSwitch0 { -webkit-animation: advGo0 linear infinite ; animation: advGo0 linear infinite ; }
+
+    @-webkit-keyframes advGo1 { 
+        0%{opacity: 0;} 20%{opacity: 1;} 80%{opacity: 1;} 100%{opacity: 0;} 
+    }
+    @keyframes advGo1 { 
+        0%{opacity: 0;} 20%{opacity: 1;} 80%{opacity: 1;} 100%{opacity: 0;} 
+    }
+    .advSwitch1 { -webkit-animation: advGo1 linear infinite ; animation: advGo1 linear infinite ; }
+
+    @-webkit-keyframes mxGo { 
+        0%{left: 390px; opacity: 1;}
+        50%{left: 0px; opacity: 1;}
+        100%{left: -390px; opacity: 0;} 
+    }
+    @keyframes mxGo { 
+        0%{left: 390px; opacity: 1;}
+        50%{left: 0px; opacity: 1;}
+        100%{left: -390px; opacity: 0;} 
+    }
+    .xGo { -webkit-animation: mxGo 8s linear forwards; animation: mxGo 8s linear forwards;  animation-delay:2s; }
+
+    @-webkit-keyframes x40a { 
+        0%{left: 390px;} 100%{left: -900px;} 
+    }
+    @keyframes x40a { 
+        0%{left: 390px;} 100%{left: -900px;} 
+    }
+    .x40t18a { -webkit-animation: x40a 18s linear forwards; animation: x40a 18s linear forwards; }
+
+    @-webkit-keyframes x40 { 
+        0%{left: 390px;} 24%{left: 0px;} 38%{left: 0px;} 100%{left: -900px;} 
+    }
+    @keyframes x40 { 
+        0%{left: 390px;} 24%{left: 0px;} 38%{left: 0px;} 100%{left: -900px;} 
+    }
+    .x40t18 { -webkit-animation: x40 18s ease-in-out  forwards; animation: x40 18s ease-in-out forwards; }
+    
+    .stop { animation-play-state:paused; -webkit-animation-play-state:paused; /* Safari 和 Chrome */ }
+    .go { animation-play-state:running; -webkit-animation-play-state:running; /* Safari 和 Chrome */ }
+</style>
+
+<template>
+    <view class="here container" style="overflow:hidden;width:{{clientWidth}}px; height:{{clientHeight}}px; background-image:url('http://iherpai.cn/images/beenhere3.jpg'); " >
+    
+        <movable-area>
+            <movable-view class="container" direction="none">
+                <view class="container {{'advSwitch'+currentAdvIndex%2}}" style="width:{{clientWidth}}px; height: {{clientHeight}}px; background-image:url('{{currentAdv.imgUrl}}'); animation-duration: {{currentAdv.nextDelay/1000}}s;"> 
+                </view>
+                <view class="position" style="width:{{clientWidth}}px; height:28px;">
+                    <!-- <image class="userinfo-avatar" src="{{ $parent.$parent.globalData.userInfo.avatarUrl }}" background-size="cover"/> {{ $parent.$parent.globalData.userInfo.nickName }} -->
+                    <image class="positionIcon" src="../images/location.png"></image>
+                    <text>{{location.address}}</text> 
+                    <!-- --- <text>{{$parent.$parent.globalData.location.address}}</text> -->
+                </view>
+                <view wx:key="vv" wx:for="{{running}}">
+                    <rich-text wx:if="{{!!item}}" style="position:absolute; left:{{clientWidth}}px; top:{{item.comment.top}}px; white-space: nowrap;" class="x40t18 {{scence.isRunningCls}}">
+                        <view class="{{item.comment.text===''?'blank':'inscription'}}">
+                            <view style="font-size:16px;-webkit-text-size-adjust: none;">{{item.comment.text}}</view>
+                        </view>
+                    </rich-text>
+                </view>
+            </movable-view>
+        </movable-area>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy';
+    import api from '../common/api';
+    import SeanComm from '../utils/utils';
+    import Bullets from '../utils/bullets';    
+    import Advs from '../utils/advs';
+    import Danmu from '../utils/danmu';
+    var QQMapWX = require('../utils/qqmap-wx-jssdk.min.js');
+
+    export default class Here extends wepy.component {
+
+        data = {
+            // list: [],
+            // nick: 'xxxx',
+            userInfo: null,
+            advs: null,
+            advTrigger: null,
+            currentAdvIndex: 0,
+            currentAdv: {
+                            id: 900001,
+                            imgUrl: "",
+                            imgUrlStr: "",
+                            type: 0, 
+                            nextDelay: 5000,
+                            targetUrl: ""
+                        },
+            location: null,
+            pixelRatio: null,
+            screenWidth: null,
+            screenHeight: null,
+            clientWidth: null,
+            clientHeight: null,
+            clientMiddle: null,
+            fontSizeSetting: null,
+            scence: {
+                runner: null,
+                baseDistance: -1, // 最大移距
+                timeslice: -1,
+                laneBaseHeight: -1,
+                topBase: 0,      // 顶部基线
+                bottomBase: -1,
+                isRunning: false,
+                isRunningCls: 'stop',
+                cntLane: 0,           // 泳道数量      
+                cntComments: 0,       // 当前CMT数量
+                cntCommentsMax: 40,
+                pauseTime: -1
+            },
+            comments: [],         // 原始CMT
+            lane0: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane1: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane2: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane3: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane4: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane5: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane6: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane7: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane8: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane9: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane10: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane11: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane12: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane13: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane14: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane15: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane16: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane17: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane18: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane19: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            lane20: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            running: [],
+            dianMen: [],
+            qqmapsdk: null
+        };
+
+        methods = {
+            select (id, evt) {
+                this.$root.$navigate({url: 'chat?id=' + id});
+            }
+        };
+
+        onLoad() {
+            let self = this;
+            // console.log("hahahah onload");
+            this.loadData();
+            // 场景初始化
+            let r = parseInt(Danmu.Settings.maxCharacter / 10);
+            this.scence.baseDistance = this.clientWidth + (((Danmu.CommentInfo.fontSize+1) * Danmu.Settings.maxCharacter + parseInt(this.fontSizeSetting/2) * r) / 2) + this.$parent.$parent.globalData.commentTailSpace;
+            this.scence.timeslice = Danmu.Settings.timeslice;
+            this.scence.laneBaseHeight = Danmu.Settings.laneBaseHeight;
+            this.scence.cntLane = Math.floor( (this.clientHeight - 100) / (this.scence.laneBaseHeight + Danmu.Settings.laneSpacing));
+            this.scence.cntLane = this.scence.cntLane > 20 ? 20 : this.scence.cntLane;
+            let _xheight = this.scence.topBase;
+            for(let i=0; i<this.scence.cntLane; i++){
+                let _lane = this['lane'+i];
+                _lane.type = Danmu.Settings.laneType;
+                _lane.height = Danmu.Settings.laneBaseHeight;
+                _lane.index = i;
+                _xheight += (_lane.height + Danmu.Settings.laneSpacing);
+                _lane.topBase = _xheight;
+                _lane.middleBase = _lane.topBase + _lane.height / 2;
+                _lane.longness = this.clientWidth;
+                _lane.minLongness = this.clientWidth * 3; //
+                _lane.maxLongness = this.clientWidth * 8; //
+                _lane.currentSerial = null;
+                _lane.trigger = null;   // 定时器
+                _lane.shoot = function(){
+                    if(!!this.currentSerial && self.scence.isRunning){
+                        let i=0, prevDm = null, _now = new Date().getTime();
+                        for(; i<self.running.length; i++){
+                            if(!!self.running[i]){
+                                if(self.running[i].commentSerial==this.currentSerial){
+                                    if( (self.running[i].startTime-_now)*-1 > self.running[i].nextDelay){
+                                        this.longness -= self.running[i].comment.distance;
+                                        self.running[i] = null;
+                                        if(this.longness<=this.minLongness){
+                                            // self.loadBullets();  // 循环加载
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        // if(!!prevDm){
+                            
+                        // }
+                    }
+                    let dm = this.dianMen.shift();
+                    if(!!dm){
+                        let _now = new Date().getTime();
+                        dm.startTime = _now;
+                        self.running.push(dm);
+                        self.$apply();
+                        this.currentSerial = dm.commentSerial;
+                        this.startTime = _now;
+                        this.trigger = setTimeout(this.shoot.bind(this), dm.nextDelay);
+                    }else{
+                        this.currentSerial = null;
+                        this.trigger = null;
+                    }
+                };  
+                _lane.reShoot = function(){
+                    if(!!this.currentSerial){
+                        let i=0, prevDm = null;
+                        for(; i<self.running.length; i++){
+                            if(!!self.running[i]){
+                                if(self.running[i].commentSerial==this.currentSerial){
+                                    prevDm = self.running[i];
+                                    break;
+                                }
+                            }
+                        }
+                        if(!!prevDm){
+                            let nowTime = new Date().getTime();
+                            if( (nowTime-this.startTime) < prevDm.nextDelay ) {
+                                prevDm.nextDelay = nowTime - this.startTime;
+                            }
+                            this.startTime = nowTime;
+                        }
+                    }
+                }
+            }
+            if(this.scence.cntLane>0){
+                _xheight += (this['lane'+(this.scence.cntLane-1)].height + Danmu.Settings.laneSpacing);
+            }else{
+                _xheight += Danmu.Settings.laneSpacing;
+            }
+            this.scence.bottomBase = _xheight;
+            this.scence.rightBase = this.clientWidth;
+            // 生成空暖场CMT
+            for(let i=0; i<this.scence.cntLane; i++) {
+                // CMT
+                this.$parent.$parent.globalData.commentSerial++;
+                let cmt = {...Danmu.CommentInfo};      
+                cmt.serial = this.$parent.$parent.globalData.commentSerial;
+                cmt.type = 'BLANK';
+                cmt.laneIndex= i;
+                cmt.text = '';  // '前方高能...';
+                let cmtLongness = -1;
+                while(true){
+                    let rndLen = SeanComm.getRandom(0, 30*SeanComm.getRandom(0, 8));
+                    let r = parseInt(rndLen / 10);
+                    cmtLongness = ((cmt.fontSize+1) * rndLen + parseInt(this.fontSizeSetting/2) * r) / 2;
+                    if(this.dianMen.length>0){
+                        let a = this.dianMen.find(dm=>{return dm.commentLongness==cmtLongness;});
+                        if(!!a){
+                            continue;
+                        }
+                    }
+                    cmt.rndLen = rndLen;
+                    break;
+                }
+                cmt.longness = cmtLongness + this.$parent.$parent.globalData.commentTailSpace;
+                cmt.top = this['lane'+cmt.laneIndex].topBase + (this['lane'+cmt.laneIndex].height - cmt.height) / 2;
+                cmt.left = this.scence.rightBase;
+                cmt.distance = cmt.longness + cmt.left;
+                // cmt.startTime = new Date().getTime();
+                cmt.status = 1;
+                this['lane'+i].longness += cmt.distance;
+                this['lane'+i].dianMen.push({
+                    commentSerial: cmt.serial,
+                    laneIndex: cmt.laneIndex,
+                    comment: cmt,
+                    // startTime: new Date().getTime(),
+                    commentLongness: cmt.longness,
+                    // nextDelay: Math.ceil(cmt.distance / ((this.scence.baseDistance-cmt.left)/Danmu.Settings.timeslice))
+                    nextDelay: Math.ceil((cmt.distance-cmt.left) / (this.scence.baseDistance/Danmu.Settings.timeslice))
+                });
+                // this.comments.push(cmt);
+            }
+            this.loadBullets();
+            this.scence.isRunning = true;
+            this.scence.isRunningCls = 'go';
+            this.$apply();
+            this.$parent.$parent.globalData.isRunning = true;
+
+            for(let i=0; i<this.scence.cntLane; i++){
+                this['lane'+i].shoot();
+            }
+
+            // this.doAdvSwitch();
+            clearTimeout(this.advTrigger);
+            this.advTrigger = setTimeout(this.doAdvSwitch.bind(this), this.currentAdv.nextDelay);
+
+            // setTimeout(function(){
+            //     console.log("!!!!! all stop ");
+            //     // self.scence.isRunning = false;
+            //     // self.scence.isRunningCls = 'stop';
+            //     self.toStop();
+            // }, 14000);
+            
+            // setTimeout(function(){
+            //     console.log("!!!!! all go ");
+            //     // self.scence.isRunning = true;
+            //     // self.scence.isRunningCls = 'go';
+            //     self.toGo();
+            // }, 18000);
+        }
+
+        loadBullets() {
+            this.$parent.$parent.globalData.inscriptions = Bullets;
+            this.dispatch(this.$parent.$parent.globalData.inscriptions, this.scence);
+        }
+
+        // 队列调度
+        dispatch(_inscriptions) {
+            // console.log("@@commentManager [dispatch] !!!", this.$parent.$parent.globalData.inscriptions);
+            let self = this;
+            let _insps = this.$parent.$parent.globalData.inscriptions;
+            // console.log('this.$parent.$parent.globalData.inscriptions: ', this.$parent.$parent.globalData.inscriptions);
+            let _inspsIdx = this.$parent.$parent.globalData.inscriptionsIndex;
+            for(let i=0; i<this.scence.cntLane; i++){
+                while(this['lane'+i].longness<=this['lane'+i].maxLongness){
+                    // 填充队列
+                    // 取inscription
+                    let _ins = _insps[_inspsIdx];
+                    if(_inspsIdx>=_insps.length-1){
+                        this.$parent.$parent.globalData.inscriptionsIndex = 0;
+                    }else{
+                        _inspsIdx++;
+                    }
+                    // CMT
+                    // console.log("@@[dispatch] -- this.$parent.$parent.globalData.commentSerial: ", this.$parent.$parent.globalData.commentSerial);
+                    this.$parent.$parent.globalData.commentSerial++;
+                    let cmt = {...Danmu.CommentInfo};      
+                    cmt.type = 'COMMENT';
+                    cmt.serial = this.$parent.$parent.globalData.commentSerial;
+                    cmt.laneIndex= i;
+                    cmt.text = _ins.text;
+                    let textLen = cmt.text.match(/[^ -~]/g) == null ? cmt.text.length+1 : (cmt.text.length + cmt.text.match(/[^ -~]/g).length)+1;
+                    let cmtLongness = ((cmt.fontSize+1) * textLen + parseInt(this.fontSizeSetting/2) * parseInt(textLen/10)) / 2;
+                    cmt.longness = cmtLongness + this.$parent.$parent.globalData.commentTailSpace;   //Danmu.Settings.commentHeadSpace + cmtLongness + Danmu.Settings.commentTailSpace;
+                    while(true){
+                        if(this.dianMen.length>0){
+                            let a = this.dianMen.find(dm=>{return dm.commentLongness==cmtLongness;});
+                            if(!!a){
+                                cmtLongness++;
+                            continue;
+                            }
+                        }
+                        break;
+                    }
+                    cmt.top = this['lane'+cmt.laneIndex].topBase + (this['lane'+cmt.laneIndex].height - cmt.height) / 2;
+                    // cmt.left = this.scence.lanes[cmt.laneIndex].longness;
+                    cmt.left = this.scence.rightBase;
+                    cmt.distance = cmt.longness + cmt.left;
+                    // cmt.startTime = new Date().getTime();
+                    cmt.status = 1;
+                    // console.log("@@commentManager [cmt]: ", cmt);  
+                    this['lane'+i].dianMen.push({
+                        commentSerial: cmt.serial,
+                        laneIndex: cmt.laneIndex,
+                        comment: cmt,
+                        // startTime: new Date().getTime(),
+                        commentLongness: cmt.longness,
+                        nextDelay: Math.ceil((cmt.distance-cmt.left) / (this.scence.baseDistance/Danmu.Settings.timeslice))
+                    });
+                    this['lane'+i].longness += cmt.longness;
+                    this.comments.push(cmt);
+                }
+            }
+            // this.dianMen.sort(function(a,b){
+            //   return a.commentLongness - b.commentLongness;
+            // });
+            // for(let i=0; i<this.dianMen.length; i++){
+            //   this.scence.lanes[this.dianMen[0].laneIndex].dianMen.push(this.dianMen[0]);        
+            //   this.dianMen.splice(0, 1);
+            // }
+            // setInterval(this.kk.bind(this), 10000);
+            // console.log("@@commentManager [dispatch] -- this.dianMen: ", this.dianMen);
+            // console.log("@@commentManager [dispatch] -- this: ", this);
+        }
+
+        async loadMessage () {
+            // this.list = await api.getMessageList();
+            // this.$parent.msgCount = this.list.length;
+            // this.$apply();
+        }
+
+        getAddress() {
+            let self = this;
+            if (this.qqmapsdk == null) {
+                this.qqmapsdk = new QQMapWX({
+                    key: 'U2GBZ-QWSRO-YCNWX-SICFH-GL2GO-CXFWE'
+                });
+            }
+            let _location = {
+                timestamp: null,
+                latitudeOrgi: null,
+                longitudeOrgi: null,
+                speed: null,
+                accuracy: null,
+                longitude: null,
+                latitude: null,
+                point: null,
+                address: null
+            };
+            wx.getLocation({
+                //type: 'wgs84',
+                type: 'gcj02',
+                success: function(res) {
+                    _location.latitudeOrgi = res.latitude;
+                    _location.longitudeOrgi = res.longitude;
+                    _location.speed = res.speed;
+                    _location.accuracy = res.accuracy;
+                    // console.log('[HERE]~~~  getLocation success: ', res);
+                },
+                complete: function(res) {
+                    let that = this;
+                    var _lati = res.latitude;
+                    var _longi = res.longitude;
+                    self.qqmapsdk.reverseGeocoder({
+                        location: {
+                            latitude: _lati,
+                            longitude: _longi
+                        },
+                        success: function (res) {
+                            // console.log('[HERE]~~~  reverseGeocoder acomplished!!!: ', res);
+                            _location.timestamp = new Date().getTime();
+                            // console.log('[HERE]~~~  acomplished!!! AAA: ');
+                            _location.point = SeanComm.fmtLocation(_lati, _longi);
+                            // console.log('[HERE]~~~  acomplished!!! BBB: ');
+                            _location.longitude = res.result.ad_info.location.lng;
+                            // console.log('[HERE]~~~  acomplished!!! CCC: ');
+                            _location.latitude = res.result.ad_info.location.lat;
+                            // console.log('[HERE]~~~  acomplished!!! DDD: ');
+                            _location.address = res.result.address;
+                            // console.log('[HERE]~~~  acomplished!!! EEE: ', that);
+                            self.location = _location;
+                            self.$parent.$parent.globalData.location = _location;
+                        },
+                        fail: function (res) {
+                        },
+                        complete: function (res) {
+                        }
+                    });
+                }
+            });
+        }
+
+        loadData() {
+            let self = this;
+            this.getAddress();
+            // this.location = api.getWxLocation(this.$parent.$parent.globalData, this);
+            // this.$apply();
+            let _g = this.$parent.$parent.globalData;
+            this.advs = Advs;
+            // this.currentAdv = this.advs[0];
+            // if(this.currentAdv.type===0){
+            //     this.currentAdv.imgUrlStr = '../'+this.currentAdv.imgUrl;
+            // }
+            // console.log('&&&&&&&&: ', this); 
+            this.userInfo = _g.userInfo;
+            this.location = _g.location;
+            this.pixelRatio = _g.pixelRatio;
+            this.screenWidth = _g.screenWidth;
+            this.screenHeight = _g.screenHeight;
+            this.clientWidth = _g.clientWidth;
+            this.clientHeight = _g.clientHeight;
+            this.clientMiddle = _g.clientMiddle;
+            this.fontSizeSetting = _g.fontSizeSetting;
+            this.$apply();
+            // console.log('[here.wpy] invoked: loadData(): ', this);
+        }
+
+        transGlobalData(a, b) {
+            // let gData = this.$parent.$parent.globalData;
+            b.running = a.running;
+            b.lane0 = a.lane0;
+            b.lane1 = a.lane1;
+            b.lane2 = a.lane2;
+            b.lane3 = a.lane3;
+            b.lane4 = a.lane4;
+            b.lane5 = a.lane5;
+            b.lane6 = a.lane6;
+            b.lane7 = a.lane7;
+            b.lane8 = a.lane8;
+            b.lane9 = a.lane9;
+            b.lane10 = a.lane10;
+            b.lane11 = a.lane11;
+            b.lane12 = a.lane12;
+            b.lane13 = a.lane13;
+            b.lane14 = a.lane14;
+            b.lane15 = a.lane15;
+            b.lane16 = a.lane16;
+            b.lane17 = a.lane17;
+            b.lane18 = a.lane18;
+            b.lane19 = a.lane19;
+            b.lane20 = a.lane20;
+        }
+
+        pullGlobalData() {
+            // 生成空暖场CMT
+            let _running = {...this.running};
+            this.running = [];
+            for(let i=0; i<this.scence.cntLane; i++) {
+                // CMT
+                this.$parent.$parent.globalData.commentSerial++;
+                let cmt = {...Danmu.CommentInfo};      
+                cmt.serial = this.$parent.$parent.globalData.commentSerial;
+                cmt.type = 'BLANK';
+                cmt.laneIndex= i;
+                cmt.text = '';  // '前方高能...';
+                let cmtLongness = -1;
+                while(true){
+                    let rndLen = SeanComm.getRandom(0, 30*SeanComm.getRandom(0, 8));
+                    let r = parseInt(rndLen / 10);
+                    cmtLongness = ((cmt.fontSize+1) * rndLen + parseInt(this.fontSizeSetting/2) * r) / 2;
+                    if(this.dianMen.length>0){
+                        let a = this.dianMen.find(dm=>{return dm.commentLongness==cmtLongness;});
+                        if(!!a){
+                            continue;
+                        }
+                    }
+                    cmt.rndLen = rndLen;
+                    break;
+                }
+                cmt.longness = cmtLongness + this.$parent.$parent.globalData.commentTailSpace;
+                cmt.top = this['lane'+cmt.laneIndex].topBase + (this['lane'+cmt.laneIndex].height - cmt.height) / 2;
+                cmt.left = this.scence.rightBase;
+                cmt.distance = cmt.longness + cmt.left;
+                // cmt.startTime = new Date().getTime();
+                cmt.status = 1;
+                this['lane'+i].currentSerial = cmt.serial;
+                this['lane'+i].longness += cmt.longness;
+                this['lane'+i].dianMen.unshift({
+                    commentSerial: cmt.serial,
+                    laneIndex: cmt.laneIndex,
+                    comment: cmt,
+                    // startTime: new Date().getTime(),
+                    commentLongness: cmt.longness,
+                    // nextDelay: Math.ceil(cmt.distance / ((this.scence.baseDistance-cmt.left)/Danmu.Settings.timeslice))
+                    nextDelay: Math.ceil((cmt.distance-cmt.left) / (this.scence.baseDistance/Danmu.Settings.timeslice))
+                });
+                this.running.push(this['lane'+i].dianMen[0]);
+                // this.comments.push(cmt);
+            }
+            for(let n=0; n<_running.length; n++) {
+                this.running.push(_running[n]);
+            }
+        }
+
+        pushGlobalData() {
+            // console.log('pushGlobalData length: ', this.running.length);
+            for(let i=0; i<this.running.length; i++){
+                if(this.running[i]==null){
+                    this.running.splice(i, 1);                    
+                    // console.log('pushGlobalData spliced: ');
+                }
+            }
+        }
+
+        toStop() {
+            // if(_isRunning){
+            //     this.scence.isRunning = true;
+            //     this.scence.isRunningCls = 'go';
+            //     for(let i=0; i<this.scence.cntLane; i++){
+            //         this['lane'+i].reShoot();
+            //     }
+            // }else{
+            //     this.scence.isRunning = false;
+            //     this.scence.isRunningCls = 'stop';
+            // }
+            if(this.scence.isRunning){
+                this.scence.pauseTime = new Date().getTime;
+                for(let i=0; i<this.scence.cntLane; i++){
+                    this['lane'+i].trigger = null;
+                }
+                this.scence.isRunning = false;
+                this.scence.isRunningCls = 'stop';
+            }
+        }
+
+        toGo(){
+            // console.log('toGo: ', this.running);
+            if(!this.scence.isRunning){
+                let diffTime = new Date().getTime - this.scence.pauseTime + 5000;
+                for(let i=0; i<this.running.length; i++){
+                    if(!!this.running[i]){
+                        this.running[i].nextDelay += diffTime;
+                    }
+                }
+                for(let i=0; i<this.scence.cntLane; i++){
+                    this['lane'+i].reShoot();
+                }
+                this.scence.isRunning = true;
+                this.scence.isRunningCls = 'go';
+            }
+        }
+
+        doAdvSwitch() {
+            // console.log("++++ doAdvSwitch", this.currentAdvIndex, this.currentAdvIndex%2);
+            clearTimeout(this.advTrigger);
+            this.$apply();
+            if(!!this.advs && this.advs.length>1){
+                // if(!!this.advTrigger){
+                // }
+                if(this.currentAdvIndex==0 || this.currentAdvIndex==this.advs.length-1){
+                    this.currentAdvIndex = 1;
+                }else{
+                    this.currentAdvIndex++;                    
+                }
+                this.currentAdv = this.advs[this.currentAdvIndex];
+            // console.log("++++ doAdvSwitch this.currentAdv  ", this.currentAdv.nextDelay);
+                this.advTrigger = setTimeout(this.doAdvSwitch.bind(this), this.currentAdv.nextDelay);
+                this.$apply();
+            }
+        }
+
+    }
+</script>

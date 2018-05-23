@@ -1,0 +1,128 @@
+<style type="less">
+@import './weui.wxss';
+body {
+    margin: 0px;
+    padding: 0px;
+    background-color: #f0eff5;
+}
+</style>
+
+<script>
+
+import wepy from 'wepy';
+import 'wepy-async-function';
+import Danmu from './utils/danmu';
+
+
+export default class extends wepy.app {
+
+    config = {
+        'pages': [
+            'pages/index',
+            'pages/piece'
+        ],
+        'window': {
+            'backgroundTextStyle': 'light',
+            'navigationBarBackgroundColor': '#3b3a40',
+            'navigationBarTitleText': 'WeChat',
+            'navigationBarTextStyle': 'black'
+        }
+    };
+
+    constructor () {
+        super();
+        this.use('promisify');
+        this.use('requestfix');
+    }
+
+    globalData = {
+        userInfo: null,
+        location: null,
+        pixelRatio: null,
+        screenWidth: null,
+        screenHeight: null,
+        clientWidth: null,
+        clientHeight: null,
+        clientMiddle: null,
+        commentTailSpace: Danmu.Settings.commentTailSpace, 
+        fontSizeSetting: null,
+        commentSerial: 0,
+        inscriptions: [],
+        inscriptionsIndex: 0,
+        isRunning: false,
+
+        running: [],
+        lane0: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane1: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane2: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane3: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane4: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane5: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane6: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane7: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane8: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane9: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane10: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane11: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane12: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane13: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane14: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane15: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane16: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane17: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane18: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane19: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+        lane20: { index: -1, topBase: -1, middleBase: -1, longness: -1, minLongness: -1, maxLongness: -1, dianMen: [], currentSerial: -1, trigger: null, shoot: null, startTime: -1 },
+            
+
+    };
+
+    onLaunch() {
+        this.getUserInfo();
+        let self = this;
+        let sis = wx.getSystemInfoSync();
+        this.globalData.pixelRatio = sis.pixelRatio;
+        this.globalData.screenWidth = sis.screenWidth;
+        this.globalData.screenHeight = sis.screenHeight;
+        this.globalData.clientWidth = sis.windowWidth;
+        this.globalData.clientHeight = sis.windowHeight;
+        this.globalData.clientMiddle = sis.windowHeight/2;
+        this.globalData.fontSizeSetting = sis.fontSizeSetting;
+        this.globalData.commentTailSpace = parseInt(sis.windowWidth*0.8);
+    }
+
+    async getUserInfo() {
+        if (this.globalData.userInfo) {
+            return this.globalData.userInfo;
+        }
+        // let xx = await wx.login(
+        //     {
+        //         timeout: 10000,
+        //         success: null,
+        //         fail: null,
+        //         complete: null
+        //     }
+        // );
+        wx.login({
+            success: function(res) {
+                if (res.code) {
+                    //发起网络请求
+                    // wx.request({
+                    //     url: 'https://test.com/onLogin',
+                    //     data: {
+                    //     code: res.code
+                    //     }
+                    // })
+                    console.log('获取 临时登录凭证code 成功！' + res.code)
+                } else {
+                    console.log('获取 临时登录凭证code 失败！' + res.errMsg)
+                }
+            }
+        });
+        console.log('await wx.login(): ', wx.login());
+        let res = await wx.getUserInfo();
+        this.globalData.userInfo = res.userInfo;
+        return res.userInfo;
+    }
+}
+</script>
